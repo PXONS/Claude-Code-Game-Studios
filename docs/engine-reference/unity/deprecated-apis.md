@@ -1,6 +1,6 @@
 # Unity 6.3 LTS — Deprecated APIs
 
-**Last verified:** 2026-02-13
+**Last verified:** 2026-05-02
 
 Quick lookup table for deprecated APIs and their replacements.
 Format: **Don't use X** → **Use Y instead**
@@ -98,6 +98,27 @@ Format: **Don't use X** → **Use Y instead**
 |------------|-------------|-------|
 | `WWW` class | `UnityWebRequest` | Modern async networking |
 | `Application.LoadLevel()` | `SceneManager.LoadScene()` | Scene management |
+| `Object.FindObjectsOfType<T>()` | `Object.FindObjectsByType<T>(FindObjectsSortMode.None)` | Unity 6.0+ — old overload is obsolete |
+| `Object.FindObjectOfType<T>()` | `Object.FindFirstObjectByType<T>()` or `FindAnyObjectByType<T>()` | Unity 6.0+ |
+
+## UI Toolkit (post 6.0)
+
+| Deprecated | Replacement | Notes |
+|------------|-------------|-------|
+| `VisualElement.transform` | `style.translate` / `style.rotate` / `style.scale` | Unity 6.2+ |
+| `ExecuteDefaultAction` override | `HandleEventBubbleUp` override | Unity 6.0+ |
+| `ExecuteDefaultActionAtTarget` override | `HandleEventTrickleDown` override | Unity 6.0+ |
+| `evt.PreventDefault()` | `evt.StopPropagation()` | Unity 6.0+ |
+| `UxmlFactory` + `UxmlTraits` pattern | `[UxmlElement]` / `[UxmlAttribute]` attributes | Unity 6.0+ |
+| `AccessibilityNode.selected` | `AccessibilityNode.invoked` | Unity 6.3+ |
+
+## Rendering (URP post 6.2)
+
+| Deprecated | Replacement | Notes |
+|------------|-------------|-------|
+| `SetupRenderPasses()` override | `AddRenderPasses()` + `RecordRenderGraph()` | Scriptable Renderer Features |
+| `CustomEditorForRenderPipelineAttribute` | `CustomEditor` + `SupportedOnRenderPipelineAttribute` | Unity 6.0+ |
+| `VolumeComponentMenuForRenderPipelineAttribute` | `VolumeComponentMenu` + `SupportedOnRenderPipelineAttribute` | Unity 6.0+ |
 
 ---
 

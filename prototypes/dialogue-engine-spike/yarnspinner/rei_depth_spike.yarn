@@ -1,0 +1,152 @@
+// PROTOTYPE - NOT FOR PRODUCTION
+// Question: Can YarnSpinner represent Masks' depth state, drive The Dig, and handle PC pronouns?
+// Date: 2026-05-02
+
+// YarnSpinner uses a C# Variable Storage component for shared state.
+// Variables prefixed with $ are Yarn variables — backed by a VariableStorageBehaviour
+// subclass that reads/writes CharacterStateManager at runtime.
+
+// Per-character storage pattern:
+// $rei_depth_tier   → CharacterStateManager.GetDepthTier("rei")
+// $rei_closed_off   → CharacterStateManager.IsClosedOff("rei")
+// $pc_name          → PlayerProfile.DisplayName
+// $pc_pronoun_sub   → PlayerProfile.PronounSubject  ("he"/"she"/"they")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NODE: SurfaceMeeting
+// Depth tier 0–1 scene. Demonstrates conditional + pronoun substitution.
+// ─────────────────────────────────────────────────────────────────────────────
+
+title: SurfaceMeeting
+---
+
+<<if $rei_closed_off>>
+    Rei glances up when {$pc_name} enters, then looks away.
+    <<stop>>
+<<endif>>
+
+<<if $rei_depth_tier >= 3>>
+    "You're here." Rei doesn't smile, but {$pc_pronoun_sub} doesn't look away either.
+    <<jump DeeperBeat>>
+<<else>>
+    "Oh — {$pc_name}." Rei's smile is precise. Practiced.
+    <<jump SurfaceBeat>>
+<<endif>>
+
+===
+
+title: SurfaceBeat
+---
+"I wasn't sure you'd come back."
+The line lands perfectly. It always does.
+
+-> "I almost didn't."
+    Something shifts — almost nothing. One brow, a fraction.
+    "Almost." {$pc_pronoun_sub} repeats it. "Interesting."
+-> "Of course I came back."
+    Rei nods. Warm. Correct.
+===
+
+title: DeeperBeat
+---
+There's no performed smile today. Just Rei, looking at {$pc_name} like
+{$pc_pronoun_sub}'s trying to work something out.
+===
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NODE: TheDigGate
+// THE DIG mechanic. Demonstrates state write-back via <<set>> and custom commands.
+// ─────────────────────────────────────────────────────────────────────────────
+
+title: TheDigGate
+---
+
+<<if $rei_depth_tier < 2>>
+    // Guard — Unity should prevent reaching this node too early.
+    <<stop>>
+<<endif>>
+
+"You always do that," {$pc_name} says.
+
+Rei goes still. Not the practiced stillness — the other kind.
+
+"Do what?"
+
+-> "Look away right when things get real."
+    <<jump DigPush>>
+-> "Nothing. Forget it."
+    <<jump DigHold>>
+-> Say nothing. Wait.
+    <<jump DigRead>>
+
+===
+
+title: DigPush
+---
+// WRONG PUSH at tier 2 — too direct.
+<<if $rei_depth_tier <= 2>>
+    Something closes in Rei's expression. Not anger. Worse.
+    "I think I need to go."
+    <<set $rei_closed_off = true>>
+    // YarnSpinner custom command — wires to CharacterStateManager.SetClosedOff()
+    <<notify_state_change "rei" "closed_off" "true">>
+    <<stop>>
+<<endif>>
+
+// Correct push at tier 3+.
+"You noticed that." Rei's voice is careful. Flat.
+But {$pc_pronoun_sub} doesn't leave.
+<<set $rei_depth_tier = $rei_depth_tier + 1>>
+<<notify_state_change "rei" "depth_tier" $rei_depth_tier>>
+===
+
+title: DigHold
+---
+// Safe choice.
+"Right." Rei exhales. The stillness passes.
+"Do you want to get out of here?"
+===
+
+title: DigRead
+---
+// Skilled read — waiting is the correct move at tier 2.
+<<if $rei_depth_tier >= 2>>
+    The silence stretches. Rei looks at {$pc_name}.
+    "You're not going to push." It isn't a question.
+    "No."
+    Something in {$pc_pronoun_sub} shoulders drops. Just slightly.
+    <<set $rei_depth_tier = $rei_depth_tier + 1>>
+    <<notify_state_change "rei" "depth_tier" $rei_depth_tier>>
+<<else>>
+    <<jump DigHold>>
+<<endif>>
+===
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NODE: RevelationSurface
+// Depth tier 4–5. Private palette active. Looser register.
+// ─────────────────────────────────────────────────────────────────────────────
+
+title: RevelationSurface
+---
+
+<<if $rei_depth_tier < 4>>
+    <<stop>>
+<<endif>>
+
+It's late. The room is different at this hour — or maybe Rei is different.
+
+{$pc_pronoun_sub} is sitting on the floor with {$pc_pronoun_sub} back against the
+couch, not the cushions. Hair not quite right. Jacket somewhere else.
+
+{$pc_name} has never seen Rei sit like that.
+
+"I've been thinking about what you said."
+
+-> "Which part?"
+    "All of it." A pause. "I don't — I'm not good at this."
+-> Say nothing.
+    Rei looks up. The expression doesn't have a name.
+===

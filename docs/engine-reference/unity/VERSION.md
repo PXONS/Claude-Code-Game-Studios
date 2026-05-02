@@ -4,8 +4,8 @@
 |-------|-------|
 | **Engine Version** | Unity 6.3 LTS |
 | **Release Date** | December 2025 |
-| **Project Pinned** | 2026-02-13 |
-| **Last Docs Verified** | 2026-02-13 |
+| **Project Pinned** | 2026-05-02 |
+| **Last Docs Verified** | 2026-05-02 |
 | **LLM Knowledge Cutoff** | May 2025 |
 
 ## Knowledge Gap Warning

@@ -1,6 +1,6 @@
 # Unity 6.3 LTS — Breaking Changes
 
-**Last verified:** 2026-02-13
+**Last verified:** 2026-05-02
 
 This document tracks breaking API changes and behavioral differences between Unity 2022 LTS
 (likely in model training) and Unity 6.3 LTS (current version). Organized by risk level.
@@ -131,6 +131,129 @@ UGUI still works but UI Toolkit is recommended for new projects.
 
 ### iOS
 - **Unity 6.0+**: Minimum deployment target raised to iOS 13
+
+---
+
+### Object Finding API Renamed (Unity 6.0)
+**Risk:** LOW (compile error only — easy fix)
+
+```csharp
+// ❌ Obsolete
+FindObjectsOfType<T>()
+FindObjectOfType<T>()
+
+// ✅ Replacement
+FindObjectsByType<T>(FindObjectsSortMode.None)   // unsorted, better perf
+FindFirstObjectByType<T>()
+FindAnyObjectByType<T>()
+```
+
+---
+
+### URP — AfterRendering Injection Timing (Unity 6.2)
+**Risk:** LOW — only affects custom ScriptableRendererFeatures
+
+The `AfterRendering` event now consistently fires after the final blit.
+If your custom pass must run before the final blit, change its event to
+`AfterRenderingPostProcessing`.
+
+---
+
+### URP — SetupRenderPasses Deprecated (Unity 6.2)
+**Risk:** MEDIUM — affects all custom Scriptable Renderer Features
+
+```csharp
+// ❌ Deprecated
+public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData data) { }
+
+// ✅ Replacement — use render graph
+public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData data) { }
+public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) { }
+```
+
+---
+
+### UI Toolkit — VisualElement.transform Deprecated (Unity 6.2)
+
+```csharp
+// ❌ Deprecated
+element.transform.position = new Vector3(x, y, 0);
+
+// ✅ Replacement
+element.style.translate = new Translate(x, y);
+element.style.rotate    = new Rotate(angle);
+element.style.scale     = new Scale(new Vector2(sx, sy));
+
+// For reading resolved values:
+var pos = element.resolvedStyle.translate;
+```
+
+---
+
+### UI Toolkit — Event System Overhaul (Unity 6.0)
+
+```csharp
+// ❌ Deprecated
+protected override void ExecuteDefaultAction(EventBase evt) { }
+protected override void ExecuteDefaultActionAtTarget(EventBase evt) { }
+evt.PreventDefault();
+
+// ✅ Replacement
+protected override void HandleEventTrickleDown(EventBase evt) { }
+protected override void HandleEventBubbleUp(EventBase evt) { }
+evt.StopPropagation();
+```
+
+Custom UXML attribute declarations also changed:
+
+```csharp
+// ❌ Old — UxmlTraits + UxmlFactory boilerplate
+public new class UxmlFactory : UxmlFactory<MyElement, UxmlTraits> { }
+public new class UxmlTraits : VisualElement.UxmlTraits { }
+
+// ✅ New — attribute-based
+[UxmlElement]
+public partial class MyElement : VisualElement {
+    [UxmlAttribute] public string MyProp { get; set; }
+}
+```
+
+---
+
+### Accessibility API (Unity 6.3)
+**Risk:** LOW — only affects projects using AccessibilityNode
+
+- `AccessibilityRole` and `AccessibilityState` now use `byte` type (was int/flags)
+- `AccessibilityRole` converted from flags enum to standard enum
+- `AccessibilityNode.selected` deprecated → use `AccessibilityNode.invoked`
+
+---
+
+### Lighting — Auto Generate Removed (Unity 6.0)
+
+The `Auto Generate` lighting checkbox was removed from the Lighting window.
+Call `Lightmapping.Bake()` or `Lightmapping.BakeAsync()` explicitly.
+
+```csharp
+// ❌ No longer: checkbox in Lighting window
+// ✅ Explicit bake
+Lightmapping.BakeAsync();
+```
+
+Enlighten baked GI backend also removed — projects auto-migrate to Progressive Lightmapper.
+
+---
+
+### GraphicsFormat — Depth/Shadow Formats (Unity 6.0)
+
+```csharp
+// ❌ Obsolete — now cause compile errors
+GraphicsFormat.DepthAuto
+GraphicsFormat.ShadowAuto
+GraphicsFormat.VideoAuto
+
+// GraphicsFormatUtility.GetGraphicsFormat returns GraphicsFormat.None for depth/shadow
+```
 
 ---
 

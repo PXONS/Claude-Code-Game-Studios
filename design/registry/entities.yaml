@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: "2026-05-02"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -139,7 +139,57 @@ formulas: []
 #
 # Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  - name: depth_tier
+    status: active
+    source: design/gdd/character-state-manager.md
+    referenced_by:
+      - design/gdd/character-state-manager.md
+      - design/gdd/dialogue-narrative-engine.md
+    value_type: int
+    value_range: "[0, 5]"
+    default: 0
+    unit: tier
+    notes: "Per-character relationship depth. 0=surface, 5=secret revealed and processed. Write owner: Relationship Depth System. Invariant: depth_tier==5 implies secret_revealed==true."
+    added: "2026-05-02"
+    revised: ""
+
+  - name: closed_off
+    status: active
+    source: design/gdd/character-state-manager.md
+    referenced_by:
+      - design/gdd/character-state-manager.md
+      - design/gdd/dialogue-narrative-engine.md
+    value_type: bool
+    default: false
+    unit: flag
+    notes: "Per-character withdrawal flag. Recoverable — not permanent. Write owner: The Dig. Does NOT lower depth_tier."
+    added: "2026-05-02"
+    revised: ""
+
+  - name: secret_revealed
+    status: active
+    source: design/gdd/character-state-manager.md
+    referenced_by:
+      - design/gdd/character-state-manager.md
+      - design/gdd/dialogue-narrative-engine.md
+    value_type: bool
+    default: false
+    unit: flag
+    notes: "Per-character secret surfacing flag. Never reverts once true at depth_tier==5. Write owner: Secret Reveal System. One-directional invariant: depth_tier==5 requires secret_revealed==true."
+    added: "2026-05-02"
+    revised: ""
+
+  - name: MAX_DEPTH_TIER
+    status: active
+    source: design/gdd/character-state-manager.md
+    referenced_by:
+      - design/gdd/character-state-manager.md
+    value: 5
+    unit: tier
+    notes: "Maximum depth tier value. Hard-coded constant. Changing requires updating all downstream GDDs and a save migration. Safe range [3, 7] per tuning knobs analysis."
+    added: "2026-05-02"
+    revised: ""
 
 # Example:
 #

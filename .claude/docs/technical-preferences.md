@@ -5,83 +5,71 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Unity 6.3 LTS
+- **Language**: C#
+- **Rendering**: Universal Render Pipeline (URP)
+- **Physics**: Unity Physics 2D (Physics2D for any UI/VN interactions)
 
 ## Input & Platform
 
-<!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
-<!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
-
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: PC (Steam)
+- **Input Methods**: Keyboard/Mouse
+- **Primary Input**: Keyboard/Mouse
+- **Gamepad Support**: Partial (menu/dialogue navigation — Steam Deck compatibility)
+- **Touch Support**: None
+- **Platform Notes**: Steam Deck compatibility recommended — all menus and dialogue must support controller d-pad navigation. No hover-only interactions.
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase (e.g., `CharacterProfile`, `DialogueManager`)
+- **Public fields/properties**: PascalCase (e.g., `MoveSpeed`, `CharacterName`)
+- **Private fields**: _camelCase (e.g., `_currentDepth`, `_isUnlocked`)
+- **Methods**: PascalCase (e.g., `AdvanceDepth()`, `TriggerReveal()`)
+- **Files**: PascalCase matching class (e.g., `CharacterProfile.cs`)
+- **Scenes/Prefabs**: PascalCase matching root object (e.g., `DialoguePanel.prefab`)
+- **Constants**: PascalCase or UPPER_SNAKE_CASE
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 fps
+- **Frame Budget**: 16.6ms
+- **Draw Calls**: ≤100 per frame (2D VN scenes are typically well under this)
+- **Memory Ceiling**: 2GB RAM target (PC — visual novel asset sets are moderate)
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: NUnit via Unity Test Runner (Edit Mode + Play Mode tests)
+- **Minimum Coverage**: Core game logic (depth system, state machine, save/load)
+- **Required Tests**: Relationship depth progression, secret reveal state machine, save/load round-trip, character creator data integrity
 
 ## Forbidden Patterns
 
-<!-- Add patterns that should never appear in this project's codebase -->
 - [None configured yet — add as architectural decisions are made]
 
 ## Allowed Libraries / Addons
 
-<!-- Add approved third-party dependencies here -->
 - [None configured yet — add as dependencies are approved]
 
 ## Architecture Decisions Log
 
-<!-- Quick reference linking to full ADRs in docs/architecture/ -->
 - [No ADRs yet — use /architecture-decision to create one]
 
 ## Engine Specialists
 
-<!-- Written by /setup-engine when engine is configured. -->
-<!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
-<!-- to know which specialist to spawn for engine-specific validation. -->
-
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: unity-specialist
+- **Language/Code Specialist**: unity-specialist (C# review — primary covers it)
+- **Shader Specialist**: unity-shader-specialist (Shader Graph, HLSL, URP/HDRP materials)
+- **UI Specialist**: unity-ui-specialist (UI Toolkit UXML/USS, UGUI Canvas, runtime UI)
+- **Additional Specialists**: unity-dots-specialist (ECS, Jobs system, Burst compiler), unity-addressables-specialist (asset loading, memory management, content catalogs)
+- **Routing Notes**: Invoke primary for architecture and general C# code review. Invoke shader specialist for rendering and visual effects. Invoke UI specialist for all interface implementation (dialogue boxes, character creator, HUD). Invoke Addressables specialist for character asset loading and memory management.
 
 ### File Extension Routing
 
-<!-- Skills use this table to select the right specialist per file type. -->
-<!-- If a row says [TO BE CONFIGURED], fall back to Primary for that file type. -->
-
 | File Extension / Type | Specialist to Spawn |
 |-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
-| General architecture review | Primary |
+| Game code (.cs files) | unity-specialist |
+| Shader / material files (.shader, .shadergraph, .mat) | unity-shader-specialist |
+| UI / screen files (.uxml, .uss, Canvas prefabs) | unity-ui-specialist |
+| Scene / prefab / level files (.unity, .prefab) | unity-specialist |
+| Native extension / plugin files (.dll, native plugins) | unity-specialist |
+| General architecture review | unity-specialist |
