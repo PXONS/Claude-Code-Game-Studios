@@ -48,7 +48,7 @@
 
 ## Allowed Libraries / Addons
 
-- [None configured yet — add as dependencies are approved]
+- **Newtonsoft.Json** (`com.unity.nuget.newtonsoft-json`) — JSON serialization for save data. Required because Unity's JsonUtility cannot serialize Dictionary or HashSet, which are used in CharacterState (narrative_flags, scenes_played). Approved: design/gdd/save-load-system.md.
 
 ## Architecture Decisions Log
 
