@@ -1,8 +1,8 @@
 # Session State
 
-**Task**: System GDD authoring — Scene Management / Flow Controller (design order #7)
-**Status**: In progress — skeleton created
-**File**: design/gdd/scene-management.md (in progress)
+**Task**: System GDD authoring — Secret Reveal System (design order #11)
+**Status**: Audio System complete; consistency check pending
+**File**: design/gdd/scene-activity-loop.md
 
 ## Progress
 - [x] Art bible complete (design/art/art-bible.md — all 9 sections)
@@ -15,8 +15,12 @@
   - [x] Relationship Depth System (design/gdd/relationship-depth-system.md)
   - [x] Relationship Depth System (design/gdd/relationship-depth-system.md)
   - [x] Text Substitution System (design/gdd/text-substitution-system.md)
-  - [ ] Scene Management / Flow Controller — design order #7
-  - [ ] ... (15 remaining)
+  - [x] Scene Management / Flow Controller (design/gdd/scene-management.md)
+  - [x] The Dig / Depth Gate (design/gdd/the-dig.md)
+  - [x] Scene & Activity Loop (design/gdd/scene-activity-loop.md)
+  - [x] Audio System / Reactive Music (design/gdd/audio-system.md)
+  - [ ] Secret Reveal System — design order #11
+  - [ ] ... (12 remaining)
 
 ## Key Decisions
 - Review mode: lean

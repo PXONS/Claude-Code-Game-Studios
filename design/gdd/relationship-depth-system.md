@@ -166,7 +166,7 @@ return count
 - `scenes_played` — `HashSet<string>` from CSM; contains scene node names for all scenes the player has completed with this character
 - `tier` — the character's current `depth_tier`
 - `SceneRegistry` — read-only data store mapping scene node names to `{tier, charId, engagementType}`
-- `engagementType` — one of `CORE`, `DEPTH`, `AMBIENT`, `RECOVERY`
+- `engagementType` — one of `CORE`, `DEPTH`, `AMBIENT`, `RECOVERY`, `ACTIVITY`. ACTIVITY was added by scene-activity-loop.md (design order #9); it does not count toward GATE_READY threshold but participates in the full COMPLETING accounting chain.
 
 **Expected output range:** 0 to N, where N is the total number of CORE/DEPTH scenes authored for this character at this tier. In practice, N should be ≥ `SCENES_REQUIRED[tier]` to ensure the threshold is reachable.
 
@@ -286,7 +286,7 @@ The `<<notify_state_change>>` command used by this system is a YarnSpinner custo
 Depends on this system defining: the GATE_READY state and what surfaces it, the four Dig outcome types (`DIG_PASS`, `DIG_PARTIAL`, `DIG_FAIL`, `DIG_CRITICAL_FAIL`), the DIG_PARTIAL cooldown mechanism (`"dig_partial_cooldown"` flag), and the write-ownership rule (The Dig writes `closed_off`; this system writes `depth_tier`). The Dig GDD must be authored with these contracts as constraints.
 
 **Scene Management / Flow Controller (#9)** — undesigned
-Depends on this system defining: the scene completion event contract `{charId, sceneNodeName, engagementType}`, the GATE_READY notification, and the three `engagement_type` values (`CORE`, `DEPTH`, `AMBIENT`). Scene Management must enforce which scenes are available at which tier based on `depth_tier` from CSM.
+Depends on this system defining: the scene completion event contract `{charId, sceneNodeName, engagementType}`, the GATE_READY notification, and the four `engagement_type` values (`CORE`, `DEPTH`, `AMBIENT`, `RECOVERY`). Scene Management must enforce which scenes are available at which tier based on `depth_tier` from CSM.
 
 **Secret Reveal System (#5)** — undesigned
 Depends on this system defining: tier 5 as the trigger point, the CSM's auto-set of `secret_revealed = true` on `SetDepthTier(charId, 5)`, and the fact that this system has no role at or after the reveal. The Secret Reveal System's entry condition is `secret_revealed == true`.

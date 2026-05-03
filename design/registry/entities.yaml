@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-05-02"
+last_updated: "2026-05-03"  # updated: added ACTIVITY to engagementType enum + scene-activity-loop.md to referenced_by after scene-activity-loop.md GDD completion
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -146,6 +146,7 @@ constants:
     referenced_by:
       - design/gdd/character-state-manager.md
       - design/gdd/dialogue-narrative-engine.md
+      - design/gdd/audio-system.md
     value_type: int
     value_range: "[0, 5]"
     default: 0
@@ -160,6 +161,8 @@ constants:
     referenced_by:
       - design/gdd/character-state-manager.md
       - design/gdd/dialogue-narrative-engine.md
+      - design/gdd/the-dig.md
+      - design/gdd/audio-system.md
     value_type: bool
     default: false
     unit: flag
@@ -173,6 +176,8 @@ constants:
     referenced_by:
       - design/gdd/character-state-manager.md
       - design/gdd/dialogue-narrative-engine.md
+      - design/gdd/the-dig.md
+      - design/gdd/audio-system.md
     value_type: bool
     default: false
     unit: flag
@@ -185,10 +190,79 @@ constants:
     source: design/gdd/character-state-manager.md
     referenced_by:
       - design/gdd/character-state-manager.md
+      - design/gdd/relationship-depth-system.md
+      - design/gdd/save-load-system.md
     value: 5
     unit: tier
     notes: "Maximum depth tier value. Hard-coded constant. Changing requires updating all downstream GDDs and a save migration. Safe range [3, 7] per tuning knobs analysis."
     added: "2026-05-02"
+    revised: ""
+
+  - name: engagementType
+    status: active
+    source: design/gdd/relationship-depth-system.md
+    referenced_by:
+      - design/gdd/relationship-depth-system.md
+      - design/gdd/scene-management.md
+      - design/gdd/scene-activity-loop.md
+    value_type: enum
+    values: ["CORE", "DEPTH", "AMBIENT", "RECOVERY", "ACTIVITY"]
+    unit: enum
+    notes: "Scene classification enum. CORE and DEPTH count toward SCENES_REQUIRED threshold for tier advancement. AMBIENT does not count. RECOVERY is used for closed_off recovery arcs only. ACTIVITY (added by scene-activity-loop.md) does not count toward threshold; participates in full COMPLETING accounting chain including dig_partial_cooldown clearance. Scene Registry (owned by scene-management.md) must tag every scene with one of these five values. Scene Management startup validator must accept ACTIVITY as a valid value."
+    added: "2026-05-03"
+    revised: "2026-05-03"  # was: 4 values [CORE, DEPTH, AMBIENT, RECOVERY] — ACTIVITY added by scene-activity-loop.md GDD
+
+  - name: DISPLAY_NAME_MAX_LENGTH
+    status: active
+    source: design/gdd/player-profile.md
+    referenced_by:
+      - design/gdd/player-profile.md
+      - design/gdd/text-substitution-system.md
+    value: 30
+    unit: characters
+    notes: "Maximum character length for the player's display name. text-substitution-system.md FALLBACK_DISPLAY_NAME safe range is bounded by this value. Increasing risks layout overflow in dialogue boxes."
+    added: "2026-05-03"
+    revised: ""
+
+  - name: DigOutcome
+    status: active
+    source: design/gdd/the-dig.md
+    referenced_by:
+      - design/gdd/the-dig.md
+      - design/gdd/relationship-depth-system.md
+      - design/gdd/save-load-system.md
+      - design/gdd/scene-management.md
+    value_type: enum
+    values: ["DIG_PASS", "DIG_PARTIAL", "DIG_FAIL", "DIG_CRITICAL_FAIL"]
+    unit: enum
+    notes: "The four outcomes of a Dig interaction. DIG_PASS: tier advances via RDS. DIG_PARTIAL: cooldown flag set, one-scene cooldown enforced by RDS. DIG_FAIL: closed_off=true written by The Dig. DIG_CRITICAL_FAIL: closed_off=true + dig_critical_failed flag written by The Dig; requires pre-existing narrative flag to trigger. Scene Management interprets DigComplete(charId, result) using these values."
+    added: "2026-05-03"
+    revised: ""
+
+  - name: dig_partial_cooldown
+    status: active
+    source: design/gdd/the-dig.md
+    referenced_by:
+      - design/gdd/the-dig.md
+      - design/gdd/relationship-depth-system.md
+    value_type: bool
+    default: false
+    unit: narrative_flag
+    notes: "Reserved narrative_flags key in CSM. Written true by The Dig on DIG_PARTIAL. Cleared to false by RDS after one scene of any engagementType completes for this character. While true, IsDigAvailable(charId) returns false."
+    added: "2026-05-03"
+    revised: ""
+
+  - name: dig_critical_failed
+    status: active
+    source: design/gdd/the-dig.md
+    referenced_by:
+      - design/gdd/the-dig.md
+      - design/gdd/relationship-depth-system.md
+    value_type: bool
+    default: false
+    unit: narrative_flag
+    notes: "Reserved narrative_flags key in CSM. Written true by The Dig on DIG_CRITICAL_FAIL. Never cleared — permanent per-character flag. Acts as a gate for a harder recovery arc (authored separately from the standard DIG_FAIL recovery arc). Idempotent: writing true when already true has no effect."
+    added: "2026-05-03"
     revised: ""
 
 # Example:
