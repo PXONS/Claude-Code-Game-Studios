@@ -36,7 +36,7 @@ Every field the CSM tracks for one character. "Write Owner" is the single system
 | `character_id` | string | non-empty, unique | (set at registration) | CSM (registration only) | Stable string key for all lookups. Never changes after registration. |
 | `depth_tier` | int | 0–5 | 0 | Relationship Depth System | Current relationship depth. 0 = surface/initial contact. 5 = secret revealed and processed. |
 | `closed_off` | bool | true/false | false | The Dig | Character has withdrawn after a push that exceeded their threshold. Recoverable. |
-| `secret_revealed` | bool | true/false | false | Secret Reveal System | Whether the character's secret has been surfaced to the player. Never reverts once set true. |
+| `secret_revealed` | bool | true/false | false | CSM (invariant — auto-set by `SetDepthTier(charId, 5)`) | Whether the character's secret has been surfaced to the player. Never reverts once set true. |
 | `narrative_flags` | Dictionary\<string, bool\> | keys: non-empty string | empty | Dialogue/Narrative Engine (via MasksVariableStorage) | Open bag for all `.yarn`-authored branch condition booleans. Created on first write. No reserved keys except the system fields above. |
 | `scenes_played` | HashSet\<string\> | set of scene node name strings | empty | Scene Management / Flow Controller | Which scene nodes have completed. Used to determine availability and prevent replays. |
 | `is_available` | bool | true/false | true | Character Roster / Availability | Whether the character is currently available for scene selection. |
@@ -121,7 +121,7 @@ There is no concept of a locked or frozen CSM. Writes are always accepted subjec
 | **Scene Management / Flow Controller** | `depth_tier`, `scenes_played`, `is_available`, `closed_off` | `scenes_played` | `RecordScenePlayed(charId, nodeName)` | Reads to build available scene list; records scene completion on exit |
 | **Save/Load System** | Full `CharacterState` for all characters | Full `CharacterState` for all characters (restore path) | `RestoreState(charId, CharacterState)` bulk restore — bypasses field-level guards | Bypass is correct: restoring a previously valid state, not making new writes. Field guard double-firing on restore would corrupt invariant enforcement. |
 | **The Dig (Depth Gate)** | `depth_tier` | `closed_off` | `SetClosedOff(charId, value)` | Only system that writes `closed_off`. Also writes it back to `false` on recovery. |
-| **Secret Reveal System** | `depth_tier`, `secret_revealed` | `secret_revealed` | `SetSecretRevealed(charId, true)` | Cannot write `false` at depth 5 (Rule 15) |
+| **Secret Reveal System** | `depth_tier`, `secret_revealed` | None | — | Read-only consumer. `secret_revealed` is auto-set by the CSM invariant (Rule 14) on `SetDepthTier(charId, 5)` — SRS does not write it. |
 | **Signal Reading Mechanic** | `narrative_flags` (specific per-scene keys) | None | — | Read-only consumer of flags authored in `.yarn` scripts |
 | **Character Roster / Availability** | `is_available`, `depth_tier`, `closed_off` | `is_available`, `availability_lock_reason` | `SetAvailable(charId, value, reason)` | Reads to build roster display; sets availability on arc status change |
 
@@ -135,7 +135,7 @@ The following downstream GDDs define formulas whose inputs or outputs are CSM fi
 |---|---|---|
 | Depth tier advancement threshold | Relationship Depth System GDD *(not yet authored)* | `depth_tier` (output) |
 | Closed-off recovery condition | The Dig GDD *(not yet authored)* | `closed_off` (output) |
-| Secret arc unlock gate | Secret Reveal System GDD *(not yet authored)* | `depth_tier` (input), `secret_revealed` (output) |
+| Secret arc unlock gate | Secret Reveal System GDD | `depth_tier` (input), `secret_revealed` (input — read-only; auto-set by CSM invariant Rule 14) |
 | Scene availability logic | Scene Management GDD *(not yet authored)* | `depth_tier`, `closed_off`, `scenes_played` (inputs) |
 
 Any numeric threshold or calculation involving CSM fields is defined in the GDD for the system that owns the write, not here.
@@ -181,7 +181,7 @@ Any numeric threshold or calculation involving CSM fields is defined in the GDD 
 
 - **If `SetDepthTier(charId, 4)` is called when `depth_tier` is 5**: Accepted. `depth_tier` becomes 4. `secret_revealed` remains true — the CSM does not revert reveals on backward depth movement. Whether backward depth movement is permitted is a Relationship Depth System design question. This state (depth 4, already revealed) is valid to store.
 - **If `SetDepthTier(charId, 5)` is called when `closed_off` is true**: Accepted. Both fields are stored. `closed_off == true` at depth 5 is valid to store; whether it is narratively reachable is the Relationship Depth and Dig systems' concern.
-- **If `SetSecretRevealed(charId, true)` is called when `depth_tier` is 0**: Accepted. The one-directional invariant is not violated. Whether this is narratively valid is the Secret Reveal System's concern.
+- **If `SetSecretRevealed(charId, true)` is called when `depth_tier` is 0**: Accepted. The one-directional invariant is not violated. This call path is available to the CSM internally; whether a caller outside the CSM can reach this state in normal gameplay is governed by write ownership (Rule 10).
 - **If `SetSecretRevealed(charId, false)` is called when `depth_tier` is 4**: Accepted. Rule 15 only blocks this at depth 5. The CSM logs nothing.
 - **If `SetSecretRevealed(charId, false)` is called when `depth_tier` is 5**: Rejected. Logs `[WARNING] SetSecretRevealed(false) rejected for {charId}: depth_tier is 5. Revealed state is permanent at this depth.` State unchanged.
 
@@ -194,7 +194,7 @@ Any numeric threshold or calculation involving CSM fields is defined in the GDD 
 | **Scene Management / Flow Controller** | Downstream (dependent) | Hard — scene availability is derived from state | Reads `depth_tier`, `scenes_played`, `is_available`, `closed_off`; writes `scenes_played` via `RecordScenePlayed()` |
 | **Save/Load System** | Downstream (dependent) | Hard — state is meaningless without persistence | Serializes full state store; restores via `RestoreState()` bulk method |
 | **The Dig (Depth Gate)** | Downstream (dependent) | Hard — `closed_off` flag is this system's sole output | Reads `depth_tier`; writes `closed_off` via `SetClosedOff()` |
-| **Secret Reveal System** | Downstream (dependent) | Hard — reveal state tracked here | Reads `depth_tier`, `secret_revealed`; writes `secret_revealed` via `SetSecretRevealed()` |
+| **Secret Reveal System** | Downstream (dependent) | Hard — reveal state tracked here | Reads `depth_tier`, `secret_revealed`; no writes — `secret_revealed` is auto-set by CSM invariant Rule 14 |
 | **Signal Reading Mechanic** | Downstream (dependent) | Soft — reads flags for display logic | Reads `narrative_flags` (specific per-scene keys); no writes |
 | **Character Roster / Availability** | Downstream (dependent) | Soft — availability display derived from state | Reads `is_available`, `depth_tier`, `closed_off`; writes `is_available` via `SetAvailable()` |
 

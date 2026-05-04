@@ -178,11 +178,38 @@ constants:
       - design/gdd/dialogue-narrative-engine.md
       - design/gdd/the-dig.md
       - design/gdd/audio-system.md
+      - design/gdd/secret-reveal-system.md
     value_type: bool
     default: false
     unit: flag
-    notes: "Per-character secret surfacing flag. Never reverts once true at depth_tier==5. Write owner: Secret Reveal System. One-directional invariant: depth_tier==5 requires secret_revealed==true."
+    notes: "Per-character secret surfacing flag. Never reverts once true at depth_tier==5. Write owner: CSM (auto-set on SetDepthTier(charId,5)). Primary consumer: Secret Reveal System (reads as arc entry condition). One-directional invariant: depth_tier==5 requires secret_revealed==true."
     added: "2026-05-02"
+    revised: "2026-05-04"  # added secret-reveal-system.md to referenced_by; clarified write owner is CSM (auto-set); CSM GDD write-ownership table corrected (was: SRS writes via SetSecretRevealed — now: CSM auto-sets on SetDepthTier(charId,5), SRS read-only)
+
+  - name: reveal_arc_in_progress
+    status: active
+    source: design/gdd/secret-reveal-system.md
+    referenced_by:
+      - design/gdd/secret-reveal-system.md
+      - design/gdd/save-load-system.md
+    value_type: bool
+    default: false
+    unit: narrative_flag
+    notes: "Reserved narrative_flags key in CSM. Written true by Secret Reveal System at arc entry. Cleared to false by SRS at ARC_COMPLETE. Combined with reveal_arc_last_completed_scene to drive crash-resume arc resumption on session start. Never written by any other system."
+    added: "2026-05-04"
+    revised: ""
+
+  - name: reveal_arc_last_completed_scene
+    status: active
+    source: design/gdd/secret-reveal-system.md
+    referenced_by:
+      - design/gdd/secret-reveal-system.md
+      - design/gdd/save-load-system.md
+    value_type: string
+    default: "null"
+    unit: narrative_flag
+    notes: "Reserved key in CSM holding the node name of the last completed revelation arc scene (buildUpNodeName, disclosureNodeName, or null). Written by Secret Reveal System at each SceneComplete callback; cleared at ARC_COMPLETE. SCHEMA GAP: current narrative_flags is Dictionary<string,bool>; a narrative_strings field or equivalent is required. See OQ-1 in secret-reveal-system.md."
+    added: "2026-05-04"
     revised: ""
 
   - name: MAX_DEPTH_TIER

@@ -34,7 +34,7 @@ complexity is all in narrative state management at scale.
 | 2 | Scene & Activity Loop | Gameplay | MVP | Designed | `design/gdd/scene-activity-loop.md` | #9, #1, #17 |
 | 3 | The Dig (Depth Gate) | Gameplay | MVP | Designed | `design/gdd/the-dig.md` | #1, #9, #6 |
 | 4 | Character Creator | Gameplay | MVP | Not Started | — | #12, #13 |
-| 5 | Secret Reveal System | Gameplay | MVP | Not Started | — | #1, #3 |
+| 5 | Secret Reveal System | Gameplay | MVP | Designed | `design/gdd/secret-reveal-system.md` | #1, #3 |
 | 6 | Character State Manager | Core | MVP | Designed | `design/gdd/character-state-manager.md` | 8-field schema; write ownership table; quarantine map for cut chars |
 | 7 | Save/Load System | Persistence | MVP | Designed | `design/gdd/save-load-system.md` | Newtonsoft.Json; single save slot; scene-exit + depth-change triggers; CSM RestoreState() bulk bypass |
 | 8 | Dialogue/Narrative Engine | Narrative | MVP | Designed | `design/gdd/dialogue-narrative-engine.md` | YarnSpinner 3.0; MasksVariableStorage pattern established |

@@ -1,8 +1,11 @@
 # Session State
 
-**Task**: System GDD authoring — Secret Reveal System (design order #11)
-**Status**: Audio System complete; consistency check pending
-**File**: design/gdd/scene-activity-loop.md
+**Task**: System GDD authoring — UI System (design order #12, next)
+**Status**: Secret Reveal System GDD complete (design/gdd/secret-reveal-system.md); all 8 sections + optional sections written
+**File**: design/gdd/secret-reveal-system.md
+
+## Completed This Session
+- [x] Secret Reveal System GDD (design/gdd/secret-reveal-system.md) — all sections written, registry updated
 
 ## Progress
 - [x] Art bible complete (design/art/art-bible.md — all 9 sections)
